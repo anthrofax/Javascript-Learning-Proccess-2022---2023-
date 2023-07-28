@@ -1,0 +1,70 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>LATIHAN DOM 1</title>
+
+    <style>
+        html,
+        body {
+            height: 100%;
+        }
+        
+        body {
+            text-align: center;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 47px;
+        }
+        
+        .ubahWarnaKesukaan {
+            background-color: aqua;
+        }
+        
+        .kotak {
+            width: 50px;
+            height: 50px;
+            border: solid 1px black;
+            margin: auto;
+        }
+        
+        .merah {
+            background-color: red;
+        }
+        
+        .hijau {
+            background-color: green;
+        }
+        
+        .biru {
+            background-color: blue;
+        }
+    </style>
+</head>
+
+<body>
+    <h1 class="h1satu">Bermain Dengan Warna</h1>
+
+    <button type="button" name="tombolSatu" class="tombolSatu">Ubah Warna!</button>
+
+    <br /><br />
+    <div class="kotak merah"></div>
+    <br />
+    <input type="range" name="slideMerah" min="0" max="255" />
+
+    <br /><br />
+    <div class="kotak hijau"></div>
+    <br />
+    <input type="range" name="slideHijau" min="0" max="255" />
+
+    <br /><br />
+    <div class="kotak biru"></div>
+    <br />
+    <input type="range" name="slideBiru" min="0" max="255" />
+
+    <script src="scriptSatu.js"></script>
+</body>
+
+</html>
