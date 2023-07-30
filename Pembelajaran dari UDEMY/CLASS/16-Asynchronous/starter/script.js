@@ -31,6 +31,7 @@ const renderData = function (data, className = '') {
 
 const renderError = function (msg) {
   countriesContainer.insertAdjacentText('beforeend', msg);
+  countriesContainer.style.opacity = '1';
 };
 
 // Cara Lama
@@ -174,3 +175,144 @@ const whereAmI = function (lat, lng) {
 
 whereAmI(52.508, 13.381);
 */
+
+// Buat whereAmI function dengan async await
+const getlocation = function () {
+  return new Promise(function (resolve, reject) {
+    navigator.geolocation.getCurrentPosition(resolve, reject);
+  });
+};
+
+const whereAmI = async function () {
+  try {
+    const curLocation = await getlocation();
+    const { latitude: lat, longitude: lng } = curLocation.coords;
+
+    const geoReverseResponse = await fetch(
+      `https://geocode.xyz/${lat}, ${lng}?json=1`
+    );
+
+    const myCurLocInfo = await geoReverseResponse.json();
+
+    if (!myCurLocInfo.country)
+      throw new Error('Anda mereload page terlalu cepat, coba sekali lagi!');
+
+    const countryInfoResponse = await fetch(
+      `https://restcountries.com/v3.1/name/${myCurLocInfo.country}`
+    );
+    const myCountryInfo = await countryInfoResponse.json();
+
+    renderData(myCountryInfo[0]);
+    countriesContainer.style.opacity = '1';
+
+    const neighbourInfoResponse = await fetch(
+      `https://restcountries.com/v3.1/alpha/${myCountryInfo[0]?.borders?.[0]}`
+    );
+
+    const neighbourInfo = await neighbourInfoResponse.json();
+
+    renderData(neighbourInfo[0], 'neighbour');
+
+    return `I am in ${myCurLocInfo.city} right now, ${myCurLocInfo.country}.`;
+  } catch (err) {
+    renderError(`${err.message}!!!!!!!`);
+
+    // Rethrow the error. (Untuk mengatur promise value pada async function menjadi reject)
+    throw err;
+  }
+};
+
+// Sub Challenge, merubah penulisan mixed async await dengan consuming promise with then ke penulisan ke penggunakan async await saja tanpa harus mencampur dengan then promise consume (menggunakan IIFE)
+// whereAmI()
+//   .then(city => console.log(`2: ${city}`))
+//   .catch(err => console.error(`2: ${err.message} 💥`))
+//   .finally(() => console.log('3: Finished getting location'));
+
+// Done Challenge :
+console.log('1: Will get a location.');
+
+(async function () {
+  try {
+    const city = await whereAmI();
+    console.log(city);
+  } catch (err) {
+    console.error(`2: ${err}`);
+  }
+  console.log('3: Finished getting location.');
+})();
+
+// Running Promises in Parallel (Using Promise.all combinator)
+const get3Countries = async function (c1, c2, c3) {
+  try {
+    // const [data1] = await getJSON(
+    //   `https://restcountries.eu/rest/v2/name/${c1}`
+    // );
+    // const [data2] = await getJSON(
+    //   `https://restcountries.eu/rest/v2/name/${c2}`
+    // );
+    // const [data3] = await getJSON(
+    //   `https://restcountries.eu/rest/v2/name/${c3}`
+    // );
+    // console.log([data1.capital, data2.capital, data3.capital]);
+
+    const data = await Promise.all([
+      getJSON(`https://restcountries.eu/rest/v2/name/${c1}`),
+      getJSON(`https://restcountries.eu/rest/v2/name/${c2}`),
+      getJSON(`https://restcountries.eu/rest/v2/name/${c3}`),
+    ]);
+    console.log(data.map(d => d[0].capital));
+  } catch (err) {
+    console.error(err);
+  }
+};
+get3Countries('portugal', 'canada', 'tanzania');
+
+// Other Promise Combinators: race, allSettled and any
+// Promise.race
+(async function () {
+  const res = await Promise.race([
+    getJSON(`https://restcountries.eu/rest/v2/name/italy`),
+    getJSON(`https://restcountries.eu/rest/v2/name/egypt`),
+    getJSON(`https://restcountries.eu/rest/v2/name/mexico`),
+  ]);
+  console.log(res[0]);
+})();
+
+const timeout = function (sec) {
+  return new Promise(function (_, reject) {
+    setTimeout(function () {
+      reject(new Error('Request took too long!'));
+    }, sec * 1000);
+  });
+};
+
+Promise.race([
+  getJSON(`https://restcountries.eu/rest/v2/name/tanzania`),
+  timeout(5),
+])
+  .then(res => console.log(res[0]))
+  .catch(err => console.error(err));
+
+// Promise.allSettled
+Promise.allSettled([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Another success'),
+]).then(res => console.log(res));
+
+Promise.all([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
+
+// Promise.any [ES2021]
+Promise.any([
+  Promise.resolve('Success'),
+  Promise.reject('ERROR'),
+  Promise.resolve('Another success'),
+])
+  .then(res => console.log(res))
+  .catch(err => console.error(err));
