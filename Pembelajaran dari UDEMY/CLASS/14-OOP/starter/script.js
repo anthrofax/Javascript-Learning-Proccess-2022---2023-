@@ -255,8 +255,11 @@ const personProto = {
 const adit = Object.create(personProto);
 adit.init('Adit', 2004);
 adit.calcAge();
+console.log(adit);
 
 // Inheritance between classes
+
+//Linking prototype between Student Class with Person Class IN CONSTRUCTOR FUNCTION WAY
 // Kita bisa menjadikan prototype dari suatu objek agar terhubung dengan prototype dari objek lainnya sebagai parent dengan menggunakan Object.create()
 const Person3 = function (firstName, birthYear) {
   this.firstName = firstName;
@@ -272,8 +275,7 @@ const Student = function (firstName, birthYear, course) {
   this.course = course;
 };
 
-//Linking prototype between Student Class with Person Class IN CONSTRUCTOR FUNCTION WAY
-Student.prototype = Object.create(Person3.prototype);
+Student.prototype = Object.create(Person3.prototype); //Linking prototype seperti ini harus dilakukan lebih dlu sebelum kita membuat property atau method pada prototype instance nya, karena jika kita melakukan sebaliknya, Object.create() akan mereturn object kosong yang dimana akan mereplace student.prototype yang sudah ada method atau property sebelumnya
 
 Student.prototype.introduce = function () {
   console.log(`Hello, my name is ${this.firstName} and I study ${this.course}`);
@@ -282,6 +284,7 @@ Student.prototype.introduce = function () {
 const eki = new Student('Eki', 2004, 'Informatika');
 eki.calcAge(); //Sekarang instance eki sudah bisa memanggil method yang ada di Person3.prototype yaitu calcAge
 
+console.log(eki);
 console.log(eki.__proto__);
 console.log(eki.__proto__.__proto__); //Kita bisa cek dengan console log bahwa prototype dari Student terhubung dengan prototype dari Person3
 
